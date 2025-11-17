@@ -1,4 +1,9 @@
-from labyrinth_game.utils import describe_current_room, show_help
+from labyrinth_game.utils import (
+    describe_current_room,
+    show_help,
+    solve_puzzle,
+    attempt_open_treasure
+)
 from labyrinth_game.player_actions import (
     show_inventory,
     get_input,
@@ -47,6 +52,12 @@ def process_command(game_state, command): # функция обработки к
                 use_item(game_state, argument)
             else:
                 print("Укажите предмет для использования. Например: use torch")
+
+        case 'solve':
+            if game_state['current_room'] == 'treasure_room':
+                attempt_open_treasure(game_state)
+            else:
+                solve_puzzle(game_state)
 
         case 'help': # список команд
             show_help()
