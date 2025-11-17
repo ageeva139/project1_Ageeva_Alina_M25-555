@@ -1,5 +1,11 @@
-from labyrinth_game.utils import describe_current_room
-from labyrinth_game.player_actions import show_inventory, get_input, move_player, take_item
+from labyrinth_game.utils import describe_current_room, show_help
+from labyrinth_game.player_actions import (
+    show_inventory,
+    get_input,
+    move_player,
+    take_item,
+    use_item
+)
 
 game_state = {
     'player_inventory': [], # Инвентарь игрока
@@ -35,6 +41,15 @@ def process_command(game_state, command): # функция обработки к
                 move_player(game_state, argument)
             else:
                 print('Укажите направление. Например: go north')
+
+        case 'use': # использовать предмет
+            if argument:
+                use_item(game_state, argument)
+            else:
+                print("Укажите предмет для использования. Например: use torch")
+
+        case 'help': # список команд
+            show_help()
 
         case 'quit' | 'exit': # выйти из игры
             print('Спасибо за игру!')
