@@ -1,3 +1,4 @@
+import math
 from labyrinth_game import constants
 from labyrinth_game.player_actions import get_input
 
@@ -99,3 +100,75 @@ def attempt_open_treasure(game_state): # функция дляо ткрытия 
     else:
         print("Вы отступаете от сундука.")
         return
+
+
+def pseudo_random(seed, modulo): # псевдослучайный генератор
+    # используем формулу на основе синуса
+    x = math.sin(seed * 12.9898) * 43758.5453
+
+    # берем дробную часть
+    fractional = x - math.floor(x)
+
+    # приводим к нужному диапазону и возвращаем целое число
+    return math.floor(fractional * modulo)
+
+
+def trigger_trap(game_state): # механика ловушек
+    print('Ловушка активирована! Пол стал дрожать...')
+
+    inventory = game_state['player_inventory']
+
+    # если инвентарь не пуст - удаляется случайный предмет
+    if inventory:
+        item_index = pseudo_random(game_state['steps_taken'], len(inventory))
+        lost_item = inventory.pop(item_index)
+        print(f'Вы потеряли {lost_item}')
+
+        if not inventory:  # если после удаления инвентарь опустел
+            print('Ваш инвентарь теперь пуст')
+    # если инвентарь пуст - наносится урон
+    else:
+        damage_roll = pseudo_random(game_state['steps_taken'], 10)
+
+        if damage_roll < 3:
+            print('Ловушка нанесла смертельный урон! Вы проиграли')
+            game_state['game_over'] = True
+        else:
+            print('Вам удалось увернуться от ловушки!')
+
+    # увеличиваем счетчик шагов
+    game_state['steps_taken'] += 1
+
+
+def random_event(game_state): # случайные события при перемещении
+    # проверяем, произойдет ли событие (10% шанс)
+    event_chance = pseudo_random(game_state['steps_taken'], 10)
+    if event_chance != 0:  # 90% что ничего не произойдет
+        return
+
+    # выбираем, какое именно событие произошло
+    event_type = pseudo_random(game_state['steps_taken'] + 1, 3)  # 0, 1 или 2
+
+    current_room_name = game_state['current_room']
+    room = constants.ROOMS[current_room_name]
+    inventory = game_state['player_inventory']
+
+    match event_type:
+        case 0:  # находка
+            print('Находка: Вы нашли на полу блестящую монетку!')
+            room['items'].append('coin')
+
+        case 1:  # испуг
+            print('Испуг: Вы слышите странный шорох в углу комнаты...')
+            if 'sword' in inventory:
+                print('Вы достаете меч, и звук мгновенно стихает')
+
+        case 2:  # срабатывание ловушки (только в trap_room без факела)
+            if (current_room_name == 'trap_room' and 'torch' not in inventory):
+                print('В темноте вы наступили на подозрительную плитку!')
+                trigger_trap(game_state)
+            else:
+                print('Ветер доносит чей-то шепот...')
+
+    # увеличиваем счетчик шагов
+    game_state['steps_taken'] += 1

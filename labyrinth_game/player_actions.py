@@ -17,14 +17,28 @@ def get_input(prompt="> "):
 
 # функция перемещения
 def move_player(game_state, direction):
+    from labyrinth_game.utils import (
+        describe_current_room,
+        pseudo_random,
+        trigger_trap,
+        random_event
+    )
     # подключение описания текущей комнаты
     room = constants.ROOMS[game_state['current_room']]
 
     if direction in room['exits']:
         game_state['current_room'] = room['exits'][direction] #изменение текущей комнаты
         game_state['steps_taken'] += 1 # увеличение счетчика шагов
-        from labyrinth_game.utils import describe_current_room
-        describe_current_room(game_state) # вывод описания текущей комнаты
+
+        # 10% шанс срабатывания ловушки при пермещении
+        trap_chance = pseudo_random(game_state['steps_taken'], 10)
+        if trap_chance == 0:
+            trigger_trap(game_state)
+
+        # если игра не закончилась из-за ловушки
+        if not game_state['game_over']:
+            random_event(game_state) # случайное событие
+            describe_current_room(game_state) # описание комнаты
     else:
         print('Нельзя пойти в этом направлении.')
 
