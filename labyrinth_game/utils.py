@@ -46,13 +46,48 @@ def solve_puzzle(game_state): # разгадать загадку
     print('Загадка:', *question)
     user_answer = get_input('Ваш ответ: ')
 
-    if user_answer.strip().lower() == correct_answer.strip().lower():
+    # все варианты ответов
+    alternative_answers = [correct_answer]
+    if correct_answer == '10':
+        alternative_answers.append('десять')
+    elif correct_answer == 'шаг шаг шаг':
+        alternative_answers.append('шагшагшаг')  # без пробелов
+
+    if user_answer.strip().lower() == alternative_answers:
         print('Загадка решена!')
         room['puzzle'] = None
-        print('Вы получаете +10 к смекалке!')
+        current_room = game_state['current_room']
+        if current_room == 'hall':
+            print('Пьедестал открывается! Вы находите серебряную монету.')
+            if 'silver_coin' not in room['items']:
+                room['items'].append('silver_coin')
+        elif current_room == 'trap_room':
+            print('Система плит отключается. Вы в безопасности!')
+        elif current_room == 'library':
+            print('Вы находите скрытый отсек в книге с золотом!')
+            if 'gold_nugget' not in game_state['player_inventory']:
+                game_state['player_inventory'].append('gold_nugget')
+        elif current_room == 'treasure_room':
+            print('Код принят! Замок готов к открытию.')
+        elif current_room == 'garden':
+            print('Цветок расцветает, показывая драгоценный камень.')
+            if 'precious_gem' not in room['items']:
+                room['items'].append('precious_gem')
+        elif current_room == 'secret_room':
+            print('Стена открывается, показывая древний амулет!')
+            if 'ancient_amulet' not in room['items']:
+                room['items'].append('ancient_amulet')
+        else:
+            print('Вы получаете +10 к смекалке!')
 
     else:
-        print('Неверно. Попробуйте снова')
+         # в trap_room неверный ответ активирует ловушку
+        if game_state['current_room'] == 'trap_room':
+            print('Неверный ответ активирует ловушку!')
+            from labyrinth_game.utils import trigger_trap
+            trigger_trap(game_state)
+        else:
+            print('Неверно. Попробуйте снова')
 
 def attempt_open_treasure(game_state): # функция дляо ткрытия сундука
 

@@ -27,20 +27,36 @@ def move_player(game_state, direction):
     room = constants.ROOMS[game_state['current_room']]
 
     if direction in room['exits']:
-        game_state['current_room'] = room['exits'][direction] #изменение текущей комнаты
-        game_state['steps_taken'] += 1 # увеличение счетчика шагов
+        next_room_name = room['exits'][direction]  # получаем название следующей комнаты
 
-        # 10% шанс срабатывания ловушки при пермещении
+        # проверка на вход в treasure_room
+        if (next_room_name == 'treasure_room'
+                and 'rusty_key' not in game_state['player_inventory']):
+            print('Дверь заперта. Нужен ключ, чтобы пройти дальше')
+            return  # прерываем перемещение
+
+        game_state['current_room'] = next_room_name  # изменение текущей комнаты
+        game_state['steps_taken'] += 1  # увеличение счетчика шагов
+
+        # сообщение об использовании ключа для входа в treasure_room
+        if (next_room_name == 'treasure_room'
+                and 'rusty_key' in game_state['player_inventory']):
+            msg = 'Вы используете найденный ключ, чтобы открыть путь в комнату сокровищ'
+            print(msg)
+
+        # 10% шанс срабатывания ловушки при перемещении
         trap_chance = pseudo_random(game_state['steps_taken'], 10)
         if trap_chance == 0:
             trigger_trap(game_state)
 
         # если игра не закончилась из-за ловушки
         if not game_state['game_over']:
-            random_event(game_state) # случайное событие
-            describe_current_room(game_state) # описание комнаты
+            random_event(game_state)  # случайное событие
+            describe_current_room(game_state)  # описание комнаты
+
     else:
         print('Нельзя пойти в этом направлении.')
+
 
 # функция пополнения инвентаря
 def take_item(game_state, item_name):
