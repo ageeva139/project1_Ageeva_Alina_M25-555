@@ -1,22 +1,26 @@
 from labyrinth_game import constants
 
-# функция для показа инвентаря
 def show_inventory(game_state):
+    '''функция для показа инвентаря'''
+
     if game_state['player_inventory']:
         print ('Вам инвентарь:', *game_state['player_inventory'])
     else:
         print ('Ваш инвентарь пуст')
 
-# функция для ввода команд пользователем
+
 def get_input(prompt="> "):
+    '''функция для ввода команд пользователем'''
+
     try:
         return input(prompt).strip().lower()
     except (KeyboardInterrupt, EOFError):
         print("\nВыход из игры.")
         return "quit"
 
-# функция перемещения
 def move_player(game_state, direction):
+    '''функция перемещения'''
+
     from labyrinth_game.utils import (
         describe_current_room,
         pseudo_random,
@@ -45,7 +49,7 @@ def move_player(game_state, direction):
             print(msg)
 
         # 10% шанс срабатывания ловушки при перемещении
-        trap_chance = pseudo_random(game_state['steps_taken'], 10)
+        trap_chance = pseudo_random(game_state['steps_taken'], constants.TRAP_PROBABILITY)
         if trap_chance == 0:
             trigger_trap(game_state)
 
@@ -58,8 +62,10 @@ def move_player(game_state, direction):
         print('Нельзя пойти в этом направлении.')
 
 
-# функция пополнения инвентаря
+
 def take_item(game_state, item_name):
+    '''функция пополнения инвентаря'''
+
     # подключение описания текущей комнаты
     room = constants.ROOMS[game_state['current_room']]
 
@@ -75,8 +81,9 @@ def take_item(game_state, item_name):
     else:
         print('Такого предмета здесь нет.')
 
-# функция использования предмета из инвентаря
 def use_item(game_state, item_name):
+    '''функция использования предмета из инвентаря'''
+
     inventory = game_state['player_inventory']
 
     if item_name not in inventory: # если предмета нет, произойдет прерывание функции

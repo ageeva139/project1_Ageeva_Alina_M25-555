@@ -2,7 +2,9 @@ import math
 from labyrinth_game import constants
 from labyrinth_game.player_actions import get_input
 
-def describe_current_room(game_state): # описание комнаты
+def describe_current_room(game_state):
+    '''описание комнаты'''
+
     # подключение описания текущей комнаты
     room=constants.ROOMS[game_state['current_room']]
 
@@ -22,11 +24,15 @@ def describe_current_room(game_state): # описание комнаты
         print('Кажется, здесь есть загадка (используйте команду solve).')
 
 def show_help():
+    '''вывод доступных команд'''
+
     print("\nДоступные команды:")
     for command, description in constants.COMMANDS.items():
         print(f"{command:<16} - {description}")
 
-def solve_puzzle(game_state): # разгадать загадку
+def solve_puzzle(game_state):
+    '''разгадать загадку'''
+
     # подключение описания текущей комнаты
     room=constants.ROOMS[game_state['current_room']]
 
@@ -83,7 +89,8 @@ def solve_puzzle(game_state): # разгадать загадку
         else:
             print('Неверно. Попробуйте снова')
 
-def attempt_open_treasure(game_state): # функция дляо ткрытия сундука
+def attempt_open_treasure(game_state):
+    '''функция дляо ткрытия сундука'''
 
     # подключение описания текущей комнаты
     room=constants.ROOMS[game_state['current_room']]
@@ -131,7 +138,9 @@ def attempt_open_treasure(game_state): # функция дляо ткрытия 
         return
 
 
-def pseudo_random(seed, modulo): # псевдослучайный генератор
+def pseudo_random(seed, modulo):
+    '''псевдослучайный генератор'''
+
     # используем формулу на основе синуса
     x = math.sin(seed * 12.9898) * 43758.5453
 
@@ -142,7 +151,9 @@ def pseudo_random(seed, modulo): # псевдослучайный генерат
     return math.floor(fractional * modulo)
 
 
-def trigger_trap(game_state): # механика ловушек
+def trigger_trap(game_state):
+    '''механика ловушек'''
+
     print('Ловушка активирована! Пол стал дрожать...')
 
     inventory = game_state['player_inventory']
@@ -151,7 +162,7 @@ def trigger_trap(game_state): # механика ловушек
     if inventory:
         # исключаем ключи, нужные для завершения игры
         losable_items = [
-            item for item in inventory 
+            item for item in inventory
             if item not in ['rusty_key', 'treasure_key', 'golden_key']
         ]
 
@@ -167,9 +178,9 @@ def trigger_trap(game_state): # механика ловушек
 
     # если инвентарь пуст - наносится урон
     else:
-        damage_roll = pseudo_random(game_state['steps_taken'], 10)
+        damage_roll = pseudo_random(game_state['steps_taken'], constants.TRAP_DAMAGE_RANGE)
 
-        if damage_roll < 3:
+        if damage_roll < constants.TRAP_DAMAGE_THRESHOLD:
             print('Ловушка нанесла смертельный урон! Вы проиграли')
             game_state['game_over'] = True
         else:
@@ -179,9 +190,11 @@ def trigger_trap(game_state): # механика ловушек
     game_state['steps_taken'] += 1
 
 
-def random_event(game_state): # случайные события при перемещении
+def random_event(game_state):
+    '''случайные события при перемещении'''
+
     # проверяем, произойдет ли событие (10% шанс)
-    event_chance = pseudo_random(game_state['steps_taken'], 10)
+    event_chance = pseudo_random(game_state['steps_taken'], constants.EVENT_PROBABILITY10)
     if event_chance != 0:  # 90% что ничего не произойдет
         return
 

@@ -19,7 +19,8 @@ game_state = {
     'steps_taken': 0 # Количество шагов
 }
 
-def process_command(game_state, command): # функция обработки команд
+def process_command(game_state, command):
+    '''функция обработки команд'''
     # разбиваем команду на части для более простой обработки команд по типу "go north"
     parts = command.split()
     if not parts:
@@ -56,7 +57,7 @@ def process_command(game_state, command): # функция обработки к
             else:
                 print("Укажите предмет для использования. Например: use torch")
 
-        case 'solve':
+        case 'solve': # решить загадку
             if game_state['current_room'] == 'treasure_room':
                 attempt_open_treasure(game_state)
             else:
