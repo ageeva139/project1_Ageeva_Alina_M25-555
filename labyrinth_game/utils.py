@@ -23,14 +23,8 @@ def describe_current_room(game_state): # описание комнаты
 
 def show_help():
     print("\nДоступные команды:")
-    print("  go <direction>  - перейти в направлении (north/south/east/west)")
-    print("  look            - осмотреть текущую комнату")
-    print("  take <item>     - поднять предмет")
-    print("  use <item>      - использовать предмет из инвентаря")
-    print("  inventory       - показать инвентарь")
-    print("  solve           - попытаться решить загадку в комнате")
-    print("  quit            - выйти из игры")
-    print("  help            - показать это сообщение")
+    for command, description in constants.COMMANDS.items():
+        print(f"{command:<16} - {description}")
 
 def solve_puzzle(game_state): # разгадать загадку
     # подключение описания текущей комнаты
@@ -53,7 +47,7 @@ def solve_puzzle(game_state): # разгадать загадку
     elif correct_answer == 'шаг шаг шаг':
         alternative_answers.append('шагшагшаг')  # без пробелов
 
-    if user_answer.strip().lower() == alternative_answers:
+    if user_answer.strip().lower() in alternative_answers:
         print('Загадка решена!')
         room['puzzle'] = None
         current_room = game_state['current_room']
@@ -155,12 +149,22 @@ def trigger_trap(game_state): # механика ловушек
 
     # если инвентарь не пуст - удаляется случайный предмет
     if inventory:
-        item_index = pseudo_random(game_state['steps_taken'], len(inventory))
-        lost_item = inventory.pop(item_index)
-        print(f'Вы потеряли {lost_item}')
+        # исключаем ключи, нужные для завершения игры
+        losable_items = [
+            item for item in inventory 
+            if item not in ['rusty_key', 'treasure_key', 'golden_key']
+        ]
 
-        if not inventory:  # если после удаления инвентарь опустел
-            print('Ваш инвентарь теперь пуст')
+        if losable_items:
+            item_index = pseudo_random(game_state['steps_taken'], len(losable_items))
+            lost_item = losable_items[item_index]
+
+            inventory.remove(lost_item)
+            print(f'Вы потеряли {lost_item}')
+
+            if not inventory:  # если после удаления инвентарь опустел
+                print('Ваш инвентарь теперь пуст')
+
     # если инвентарь пуст - наносится урон
     else:
         damage_roll = pseudo_random(game_state['steps_taken'], 10)

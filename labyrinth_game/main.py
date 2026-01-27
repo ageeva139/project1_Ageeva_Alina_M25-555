@@ -47,6 +47,9 @@ def process_command(game_state, command): # функция обработки к
             else:
                 print('Укажите направление. Например: go north')
 
+        case 'north' | 'south' | 'east' | 'west': # изменить комнату без слова "go"
+            move_player(game_state, main_command)
+
         case 'use': # использовать предмет
             if argument:
                 use_item(game_state, argument)
